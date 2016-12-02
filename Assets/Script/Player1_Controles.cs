@@ -1,15 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[RequireComponent (typeof(AudioSource))]
+[RequireComponent (typeof(Rigidbody2D))]
+[RequireComponent (typeof(GameObject))]
 public class Player1_Controles : MonoBehaviour {
 
-	private Animator anim;
-	bool suelo_cerca = false;
 	public float velocidad = 100f;
+	public AudioClip sonido_salto;
+	public AudioClip sonido_herir;
+	public AudioClip sonido_moneda;
+	public GameObject particulas_muerte;
 	//public float velocidad_maxima = 5f; LO COMENTADO ES PARA USAR ACELERACIÓN HASTA UNA VELOCIDAD MAXIMA Y NO UNA VELOCIDAD CONSTANTE DESDE INICIO
+
+
+	private bool suelo_cerca = false;
+	private Animator anim;
 	private Rigidbody2D rb;
 	private GameControlScript gcs;
-	public GameObject particulas_muerte;
+	private AudioSource audio;
+
+
 
 
 	// Use this for initialization
@@ -17,6 +28,7 @@ public class Player1_Controles : MonoBehaviour {
 		anim = GetComponent<Animator> ();
 		rb = GetComponent<Rigidbody2D> ();
 		gcs = GameObject.Find ("GameControl").GetComponent<GameControlScript> ();
+		audio = GetComponent<AudioSource> ();
 	}
 	
 	// Update is called once per frame
@@ -33,21 +45,20 @@ public class Player1_Controles : MonoBehaviour {
 			MovimientoDerecha ();
 		}
 
-		if (Input.GetKeyUp (KeyCode.RightArrow)) {
+		//if (Input.GetKeyUp (KeyCode.RightArrow)) {
 			//anim.SetFloat ("velocity", 0f);
-		}
+		//}
 
 		if (Input.GetKey (KeyCode.LeftArrow)) {
 			MovimientoIzquierda ();
 		}
 
-		if (Input.GetKeyUp (KeyCode.LeftArrow)) {
+		//if (Input.GetKeyUp (KeyCode.LeftArrow)) {
 			//anim.SetFloat ("velocity", 0f);
-		}
+		//}
 		//
 		if (Input.GetKeyDown (KeyCode.UpArrow) && suelo_cerca) {
 			Salto ();
-			anim.SetBool ("jump", true);
 		}
 				
 	}
@@ -68,6 +79,8 @@ public class Player1_Controles : MonoBehaviour {
 
 	void Salto() {
 		GetComponent<Rigidbody2D> ().AddForce (Vector2.up*300);
+		anim.SetBool ("jump", true);
+		audio.PlayOneShot (sonido_salto, 0.5f);
 	}
 
 	void OnTriggerStay2D(Collider2D objeto){
@@ -86,7 +99,16 @@ public class Player1_Controles : MonoBehaviour {
 	void OnCollisionEnter2D(Collision2D col){
 		if (col.gameObject.tag == "muerte") {
 			//gcs.respaw ();
+			audio.PlayOneShot (sonido_herir, 0.5f);
 			Instantiate(particulas_muerte, transform.position, transform.rotation);
+			Invoke ("muerte", 1);
 		}
+		if (col.gameObject.tag == "Moneda") {
+			audio.PlayOneShot (sonido_moneda, 0.5f);
+		}
+	}
+
+	void muerte(){
+		gcs.respaw ();
 	}
 }
