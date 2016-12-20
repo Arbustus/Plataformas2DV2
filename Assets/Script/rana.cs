@@ -7,7 +7,7 @@ public class rana : MonoBehaviour {
 	void Start () {
 		anim = GetComponent<Animator> ();
 	}
-
+	// la rana salta continuamente
 	void Update (){
 			anim.SetTrigger ("jump");
 	}
